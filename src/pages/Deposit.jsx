@@ -148,6 +148,20 @@ const style = `
     font-size: .82rem; color: #166534; margin-bottom: 20px;
   }
 
+  /* Error box */
+  .dpf-error-box {
+    display: flex; flex-direction: column; gap: 10px;
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 10px; padding: 14px;
+    font-size: .82rem; color: #991b1b; margin-bottom: 20px;
+  }
+  .dpf-error-msg-main { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .dpf-error-msg-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .dpf-error-details { display: flex; flex-direction: column; gap: 6px; padding-left: 26px; font-size: .78rem; }
+  .dpf-error-detail-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 8px; background: rgba(239,68,68,.08); border-radius: 6px; }
+  .dpf-error-detail-label { color: #7f1d1d; font-weight: 500; }
+  .dpf-error-detail-value { color: #991b1b; font-weight: 700; font-family: 'Playfair Display', serif; }
+
   /* Quick amount chips */
   .dpf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .dpf-chip {
@@ -296,6 +310,7 @@ export default function Deposit() {
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState("");
+    const [formErrorDetails, setFormErrorDetails] = useState(null); // { depositedToday, remaining, limit }
     const [success, setSuccess] = useState(null);
 
     const handleLogout = () => { cookies.remove("token", { path: "/" }); navigate("/login"); };
@@ -321,6 +336,7 @@ export default function Deposit() {
     const handleConfirm = async () => {
         setSubmitting(true);
         setFormError("");
+        setFormErrorDetails(null);
         try {
             const r = await axios.post(
                 `${API}/deposit`,
@@ -331,15 +347,25 @@ export default function Deposit() {
             setShowModal(false);
         } catch (e) {
             setShowModal(false);
-            const msg = e?.response?.data?.message || e?.response?.data?.error || "Deposit failed. Please try again.";
+            const errorData = e?.response?.data;
+            const msg = errorData?.message || errorData?.error || "Deposit failed. Please try again.";
             setFormError(msg);
+
+            // Handle daily limit error with remaining amount
+            if (e?.response?.status === 403 && errorData?.remaining !== undefined) {
+                setFormErrorDetails({
+                    depositedToday: errorData.depositedToday || 0,
+                    remaining: errorData.remaining || 0,
+                    dailyLimit: (errorData.depositedToday || 0) + (errorData.remaining || 0),
+                });
+            }
         } finally {
             setSubmitting(false);
         }
     };
 
     const resetForm = () => {
-        setAmount(""); setNote(""); setSuccess(null); setFormError("");
+        setAmount(""); setNote(""); setSuccess(null); setFormError(""); setFormErrorDetails(null);
     };
 
     /* ── Success view ── */
@@ -521,8 +547,31 @@ export default function Deposit() {
 
                                 {/* Error */}
                                 {formError && (
-                                    <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", borderRadius: 10, padding: "11px 14px", fontSize: ".85rem", fontWeight: 600, marginBottom: 16 }}>
-                                        {formError}
+                                    <div className="dpf-error-box">
+                                        <div className="dpf-error-msg-main">
+                                            <svg className="dpf-error-msg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                                            </svg>
+                                            {formError}
+                                        </div>
+                                        
+                                        {/* Daily limit details */}
+                                        {formErrorDetails && (
+                                            <div className="dpf-error-details">
+                                                <div className="dpf-error-detail-row">
+                                                    <span className="dpf-error-detail-label">Deposited Today:</span>
+                                                    <span className="dpf-error-detail-value">{fmt(formErrorDetails.depositedToday)}</span>
+                                                </div>
+                                                <div className="dpf-error-detail-row">
+                                                    <span className="dpf-error-detail-label">Daily Limit:</span>
+                                                    <span className="dpf-error-detail-value">{fmt(formErrorDetails.dailyLimit)}</span>
+                                                </div>
+                                                <div className="dpf-error-detail-row" style={{ background: "rgba(22,163,74,.08)" }}>
+                                                    <span className="dpf-error-detail-label" style={{ color: "#166534" }}>Amount Remaining:</span>
+                                                    <span className="dpf-error-detail-value" style={{ color: "#16a34a" }}>{fmt(formErrorDetails.remaining)}</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
