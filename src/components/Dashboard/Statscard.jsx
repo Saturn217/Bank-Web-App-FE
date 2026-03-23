@@ -78,7 +78,7 @@ export default function Statscard({
           <button
             onClick={handleCopy}
             style={{
-              display: "inline-flex", alignItems: "center", gap: 7,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
               background: "rgba(255,255,255,0.1)",
               border: "1px solid rgba(255,255,255,0.18)",
               color: "rgba(255,255,255,0.8)",

@@ -8,7 +8,7 @@ import TransactionsTable from "./Transactionstable";
 import Cookies from "universal-cookie";
 import { getTokenData } from "../../auth/auth";
 
-const API_BASE = "http://localhost:9000/api/v1";
+const API_BASE = "https://bank-web-app-eight.vercel.app/api/v1";
 
 const dashboardStyles = `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');

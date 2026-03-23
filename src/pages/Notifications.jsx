@@ -7,7 +7,7 @@ import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
 import PageLoader from "../components/PageLoader";
 
-const API = "http://localhost:9000/api/v1";
+const API = "https://bank-web-app-eight.vercel.app/api/v1";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');

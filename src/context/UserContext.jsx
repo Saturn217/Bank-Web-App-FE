@@ -4,7 +4,7 @@ import Cookies from "universal-cookie";
 
 const UserContext = createContext(null);
 
-const API = "http://localhost:9000/api/v1";
+const API = "https://bank-web-app-eight.vercel.app/api/v1";
 
 export function UserProvider({ children }) {
   const [userData, setUserData] = useState(null);

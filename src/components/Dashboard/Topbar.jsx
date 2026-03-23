@@ -5,7 +5,7 @@ import Cookies from "universal-cookie";
 import { useUser } from "../../context/UserContext";
 import { getTokenData } from "../../auth/auth";
 
-const API = "http://localhost:9000/api/v1";
+const API = "https://bank-web-app-eight.vercel.app/api/v1";
 
 function getFirstName(sourceName = "") {
   if (!sourceName || typeof sourceName !== "string") return "";

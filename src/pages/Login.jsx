@@ -334,11 +334,11 @@ const style = `
   }
 `;
 
-import logoImg from "../assets/logo.png";
+
 
 /* Saturn logo SVG (same as LandingPage) */
 const SaturnLogo = ({ size = 24 }) => (
-  <img src={logoImg} alt="Bank of Saturn Logo" width={size} height={size} style={{ objectFit: "contain", borderRadius: "20%" }} />
+  <img src="/logo.png" alt="Bank of Saturn Logo" width={size} height={size} style={{ objectFit: "contain", borderRadius: "20%" }} />
 );
 
 /* Eye icons */
@@ -380,7 +380,7 @@ export default function Login({onLogin}) {
     onSubmit: async (values, { setSubmitting }) => {
       setApiError("");
       try {
-        const response = await axios.post("http://localhost:9000/api/v1/login", {
+        const response = await axios.post("https://bank-web-app-eight.vercel.app/api/v1/login", {
           email: values.email,
           password: values.password,
         });

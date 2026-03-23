@@ -1,5 +1,4 @@
 import { RotatingLines } from "react-loader-spinner";
-import logoImg from "../assets/logo.png";
 /**
  * Full-page loading overlay used while API data is being fetched.
  * Drop-in replacement for any page's skeleton loading state.
@@ -37,7 +36,7 @@ export default function PageLoader({
                 boxShadow: "0 8px 24px rgba(27,58,107,0.25)",
             }}>
                 {/* Saturn mini logo */}
-                <img src={logoImg} alt="Loading" width="28" height="28" style={{ objectFit: "contain", borderRadius: "20%" }} />
+                <img src="/logo.png" alt="Loading" width="28" height="28" style={{ objectFit: "contain", borderRadius: "20%" }} />
             </div>
 
             <RotatingLines

@@ -735,7 +735,7 @@ export default function Dashboard() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:9000/api/v1/dashboard", {
+      const res = await axios.get("https://bank-web-app-eight.vercel.app/api/v1/dashboard", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setData(res.data.data);
@@ -756,7 +756,7 @@ export default function Dashboard() {
   // used for background refreshes so the UI doesn't flicker.
   const silentFetch = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:9000/api/v1/dashboard", {
+      const res = await axios.get("https://bank-web-app-eight.vercel.app/api/v1/dashboard", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setData(res.data.data);

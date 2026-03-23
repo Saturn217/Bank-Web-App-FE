@@ -4,15 +4,13 @@ import { Link } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import { getTokenData } from "../../auth/auth";
 
-import logoImg from "../../assets/logo.png";
-
 function getFirstName(sourceName = "") {
   if (!sourceName || typeof sourceName !== "string") return "";
   return sourceName.trim().split(" ")[0] || "";
 }
 
 const SaturnLogo = () => (
-  <img src={logoImg} alt="Bank of Saturn Logo" width="32" height="32" style={{ objectFit: "contain", borderRadius: "20%" }} />
+  <img src="/logo.png" alt="Bank of Saturn Logo" width="32" height="32" style={{ objectFit: "contain", borderRadius: "20%" }} />
 );
 
 const navItems = [

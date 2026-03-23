@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
-const API = "http://localhost:9000/api/v1";
+const API = "https://bank-web-app-eight.vercel.app/api/v1";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
@@ -230,11 +230,11 @@ const style = `
   }
 `;
 
-import logoImg from "../assets/logo.png";
+
 
 /* ── SVG helpers ── */
 const SaturnLogo = ({ size = 24 }) => (
-  <img src={logoImg} alt="Bank of Saturn Logo" width={size} height={size} style={{ objectFit: "contain", borderRadius: "20%" }} />
+  <img src="/logo.png" alt="Bank of Saturn Logo" width={size} height={size} style={{ objectFit: "contain", borderRadius: "20%" }} />
 );
 const IconMail = ({ size = 26, color = "#2563eb" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

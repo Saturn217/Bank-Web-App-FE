@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
-import logoImg from "../assets/logo.png";
+
 
 /* ── Feature-card SVG icons ── */
 const IconCreditCard = () => (
@@ -600,7 +600,7 @@ export default function LandingPage() {
       <nav className={`nav-bar${scrolled ? " scrolled" : ""}`}>
         <a href="#" className="nav-logo">
           <div className="nav-logo-icon">
-            <img src={logoImg} alt="Bank of Saturn" width="22" height="22" style={{ objectFit: "contain", borderRadius: "5px" }} />
+            <img src="/logo.png" alt="Bank of Saturn" width="22" height="22" style={{ objectFit: "contain", borderRadius: "5px" }} />
           </div>
           Bank of Saturn
         </a>

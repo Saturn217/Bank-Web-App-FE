@@ -505,7 +505,7 @@ const CATEGORIES = [
   },
 ];
 
-const API = "http://localhost:9000/api/v1";
+const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function Spin() {
