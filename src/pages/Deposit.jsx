@@ -299,6 +299,7 @@ export default function Deposit() {
   const { roles: userRole } = getTokenData();
 
     const [userData, setUserData] = useState(null);
+    const [depositStatus, setDepositStatus] = useState(null); // { dailyDepositLimit, depositedToday }
     const [mobileOpen, setMobileOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -329,6 +330,13 @@ export default function Deposit() {
         const amt = parseFloat(amount);
         if (!amount || isNaN(amt) || amt <= 0) return setFormError("Please enter a valid amount.");
         if (amt < 100) return setFormError("Minimum deposit amount is ₦100.");
+        // Check daily deposit limit if available
+        if (userData?.dailyDepositLimit && userData?.depositedToday !== undefined) {
+            const remaining = userData.dailyDepositLimit - userData.depositedToday;
+            if (amt > remaining) {
+                return setFormError(`Deposit amount exceeds daily limit. Remaining: ₦${remaining.toLocaleString("en-NG")}`);
+            }
+        }
         setShowModal(true);
     };
 
@@ -345,6 +353,10 @@ export default function Deposit() {
             );
             setSuccess(r.data);
             setShowModal(false);
+            // Refetch user data to update deposit limits
+            axios.get(`${API}/dashboard`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(r => setUserData(r.data.data))
+                .catch(() => {}); // ignore errors
         } catch (e) {
             setShowModal(false);
             const errorData = e?.response?.data;
@@ -499,7 +511,7 @@ export default function Deposit() {
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                                         <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                                     </svg>
-                                    <span>Deposits are credited instantly. Minimum deposit is <strong>₦100</strong>. No PIN required.</span>
+                                    <span>Deposits are credited instantly. Minimum deposit is <strong>₦100</strong>. {userData?.dailyDepositLimit ? `Daily limit: ₦${((userData.dailyDepositLimit - (userData.depositedToday || 0))).toLocaleString("en-NG")}` : 'Daily limit: ₦1,000,000'}. No PIN required.</span>
                                 </div>
 
                                 {/* Amount */}

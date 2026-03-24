@@ -1,18 +1,11 @@
 import { RotatingLines } from "react-loader-spinner";
-/**
- * Full-page loading overlay used while API data is being fetched.
- * Drop-in replacement for any page's skeleton loading state.
- *
- * Props:
- *  - message  (string)  Optional text shown below the spinner. Default: "Loading…"
- *  - color    (string)  Stroke colour of the lines.       Default: "#1b3a6b" (navy)
- *  - width    (number)  Size of the spinner in px.        Default: 56
- */
+
 export default function PageLoader({
     message = "Loading…",
     color = "#1b3a6b",
     width = 56,
-}) {
+})
+ {
     return (
         <div style={{
             display: "flex",
@@ -22,8 +15,8 @@ export default function PageLoader({
             gap: 16,
             minHeight: "60vh",
             width: "100%",
-        }}>
-            {/* Brand mark */}
+         }}>
+           
             <div style={{
                 width: 48,
                 height: 48,
@@ -35,7 +28,7 @@ export default function PageLoader({
                 marginBottom: 4,
                 boxShadow: "0 8px 24px rgba(27,58,107,0.25)",
             }}>
-                {/* Saturn mini logo */}
+                
                 <img src="/logo.png" alt="Loading" width="28" height="28" style={{ objectFit: "contain", borderRadius: "20%" }} />
             </div>
 

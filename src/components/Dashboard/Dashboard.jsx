@@ -611,7 +611,7 @@ export default function Dashboard() {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          credentials: "include", // sends cookies too, in case you use httpOnly JWT
+          credentials: "include", 
         });
 
         if (!res.ok) {

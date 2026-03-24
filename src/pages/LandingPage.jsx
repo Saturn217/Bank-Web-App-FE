@@ -607,8 +607,8 @@ export default function LandingPage() {
 
         <ul className="nav-links">
           <li><a href="#personal">Personal</a></li>
-          <li><a href="#personal">Business</a></li>
-          <li><a href="#personal">Savings</a></li>
+          <li><a href="#section">Business</a></li>
+          <li><a href="#section">Savings</a></li>
           <li><a href="#">About</a></li>
         </ul>
 
@@ -658,7 +658,8 @@ export default function LandingPage() {
               </p>
               <div className="hero-actions">
                 <button className="btn-hero-primary" onClick={() => navigate("/register")}>Get Started — It's Free</button>
-                <button className="btn-hero-ghost">See How It Works</button>
+                {/* <button  className="btn-hero-ghost"  >See How It Works</button> */}
+                <a href="#section" className="btn-hero-ghost text-decoration-none">See How It Works</a>
               </div>
             </div>
 

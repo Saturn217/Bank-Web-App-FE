@@ -31,7 +31,9 @@ export default function Statscard({
   billsThisMonth = 0,
   accountNumber = "",
   loading = false,
-}) {
+})
+
+{
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
