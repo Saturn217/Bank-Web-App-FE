@@ -270,6 +270,10 @@ const style = `
 const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+// Transaction limits (must match backend .env)
+const SINGLE_TX_LIMIT      = 500_000;  // per single transaction
+const DAILY_WITHDRAW_LIMIT = 1_000_000; // per day
+
 function Spin() {
     return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
@@ -335,6 +339,8 @@ export default function Withdrawal() {
         const amt = parseFloat(amount);
         if (!amount || isNaN(amt) || amt <= 0) return setFormError("Please enter a valid amount.");
         if (amt < 1000) return setFormError("Minimum withdrawal amount is ₦1,000.");
+        if (amt > SINGLE_TX_LIMIT) return setFormError(`Single transaction limit is ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}. Split into multiple withdrawals if needed.`);
+        if (amt > DAILY_WITHDRAW_LIMIT) return setFormError(`Daily withdrawal limit is ₦${DAILY_WITHDRAW_LIMIT.toLocaleString("en-NG")}. You cannot exceed this in a single day.`);
         if (userData && amt > userData.totalBalance) return setFormError("Insufficient balance.");
         setModalPin(["", "", "", ""]);
         setModalError("");
@@ -524,7 +530,7 @@ export default function Withdrawal() {
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                                         <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                                     </svg>
-                                    <span>Withdrawals are processed immediately. Minimum withdrawal is <strong>₦1,000</strong>.</span>
+                                    <span>Min: <strong>₦1,000</strong> · Max per transaction: <strong>₦500,000</strong> · Daily limit: <strong>₦1,000,000</strong>. PIN required.</span>
                                 </div>
 
                                 {/* Amount */}
@@ -540,7 +546,7 @@ export default function Withdrawal() {
                                             onChange={(e) => setAmount(e.target.value)}
                                         />
                                     </div>
-                                    <p className="wdf-hint">Minimum withdrawal: ₦1,000</p>
+                                    <p className="wdf-hint">Min: ₦1,000 · Max per transaction: ₦500,000 · Daily limit: ₦1,000,000</p>
                                 </div>
 
                                 {/* Note */}

@@ -271,6 +271,10 @@ const style = `
 const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+// Transaction limits (must match backend .env)
+const SINGLE_TX_LIMIT   = 500_000;   // per single transaction
+const DAILY_TRANSFER_LIMIT = 2_000_000; // per day
+
 /* ── Spinner ── */
 function Spin() {
     return (
@@ -375,6 +379,7 @@ export default function Transfer() {
         const amt = parseFloat(amount);
         if (!amount || isNaN(amt) || amt <= 0) return setFormError("Please enter a valid amount.");
         if (amt < 1000) return setFormError("Minimum transfer amount is ₦1,000.");
+        if (amt > SINGLE_TX_LIMIT) return setFormError(`Single transaction limit is ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}. Please split into multiple transfers.`);
         if (userData && amt > userData.totalBalance) return setFormError("Insufficient balance.");
         if (accNum.length !== 10) return setFormError("Account number must be 10 digits.");
         if (userData?.accountNumber && accNum === userData.accountNumber)
@@ -583,7 +588,7 @@ export default function Transfer() {
                                             onChange={(e) => setAmount(e.target.value)}
                                         />
                                     </div>
-                                    <p className="txf-hint">Minimum transfer: ₦1,000</p>
+                                    <p className="txf-hint">Min: ₦1,000 · Max per transaction: ₦500,000 · Daily limit: ₦2,000,000</p>
                                 </div>
 
                                 {/* Receiver Account */}

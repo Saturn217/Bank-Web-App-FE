@@ -279,6 +279,10 @@ const style = `
 const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+// Transaction limits (must match backend .env)
+const SINGLE_TX_LIMIT    = 500_000;   // per single transaction
+const DAILY_DEPOSIT_LIMIT = 1_000_000; // per day
+
 const QUICK_AMOUNTS = [500, 1000, 5000, 10000, 50000];
 
 function Spin() {
@@ -330,12 +334,13 @@ export default function Deposit() {
         const amt = parseFloat(amount);
         if (!amount || isNaN(amt) || amt <= 0) return setFormError("Please enter a valid amount.");
         if (amt < 100) return setFormError("Minimum deposit amount is ₦100.");
-        // Check daily deposit limit if available
-        if (userData?.dailyDepositLimit && userData?.depositedToday !== undefined) {
-            const remaining = userData.dailyDepositLimit - userData.depositedToday;
-            if (amt > remaining) {
-                return setFormError(`Deposit amount exceeds daily limit. Remaining: ₦${remaining.toLocaleString("en-NG")}`);
-            }
+        if (amt > SINGLE_TX_LIMIT) return setFormError(`Single transaction limit is ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}. Split into multiple deposits if needed.`);
+        // Use server-returned remaining if available, otherwise use hardcoded daily limit
+        const depositedToday = userData?.depositedToday ?? 0;
+        const dailyLimit = userData?.dailyDepositLimit ?? DAILY_DEPOSIT_LIMIT;
+        const remaining = dailyLimit - depositedToday;
+        if (amt > remaining) {
+            return setFormError(`Daily deposit limit exceeded. You have ₦${remaining.toLocaleString("en-NG")} remaining today (limit: ₦${dailyLimit.toLocaleString("en-NG")}).`);
         }
         setShowModal(true);
     };
@@ -511,7 +516,7 @@ export default function Deposit() {
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                                         <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                                     </svg>
-                                    <span>Deposits are credited instantly. Minimum deposit is <strong>₦100</strong>. {userData?.dailyDepositLimit ? `Daily limit: ₦${((userData.dailyDepositLimit - (userData.depositedToday || 0))).toLocaleString("en-NG")}` : 'Daily limit: ₦1,000,000'}. No PIN required.</span>
+                                    <span>Min: <strong>₦100</strong> · Max per transaction: <strong>₦500,000</strong> · Daily limit: <strong>₦1,000,000</strong>. No PIN required.</span>
                                 </div>
 
                                 {/* Amount */}

@@ -5,6 +5,7 @@ import { getTokenData } from "../auth/auth";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
+import PageLoader from "../components/PageLoader";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
@@ -700,22 +701,18 @@ export default function Savings() {
     fetchData(); // refresh balances and history
   };
 
-  const fullName = data ? "" : ""; // topbar gets from dashboard
-
-  /* skeleton */
+  /* loading */
   if (loading) return (
     <>
       <style>{style}</style>
+      <div className="sidebar-overlay-bg" style={{ display: mobileOpen ? "block" : "none" }} onClick={() => setMobileOpen(false)} />
       <div className="dash-layout">
-        <div className="bos-sidebar" />
+        <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} onLogout={handleLogout}
+          onNavigate={key => navigate("/" + key)} active="savings" />
         <main className="dash-main">
-          <div className="bos-topbar" />
+          <Topbar onMenuToggle={() => setMobileOpen(o => !o)} />
           <div className="dash-content">
-            <div className="sv-page">
-              <div className="skeleton" style={{ height: 200, borderRadius: 22, marginBottom: 20 }} />
-              <div className="skeleton" style={{ height: 80, borderRadius: 16, marginBottom: 20 }} />
-              <div className="skeleton" style={{ height: 300, borderRadius: 16 }} />
-            </div>
+            <PageLoader message="Loading savings…" />
           </div>
         </main>
       </div>
