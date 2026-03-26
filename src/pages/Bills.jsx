@@ -567,6 +567,19 @@ export default function BillPayment() {
   const [modalError, setModalError] = useState("");
   const [success, setSuccess] = useState(null);
 
+  /* ── PIN lockout (pinLimiter — 10 min) ── */
+  const [pinLockedUntil, setPinLockedUntil] = useState(null);
+  const [pinLockSecs, setPinLockSecs] = useState(0);
+  useEffect(() => {
+    if (!pinLockedUntil) return;
+    const id = setInterval(() => {
+      const left = Math.max(0, Math.ceil((pinLockedUntil - Date.now()) / 1000));
+      setPinLockSecs(left);
+      if (left === 0) { setPinLockedUntil(null); clearInterval(id); }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [pinLockedUntil]);
+
   /* ── PIN state ── */
   const [modalPin, setModalPin] = useState(["", "", "", ""]);
   const pinRefs = [useRef(), useRef(), useRef(), useRef()];
@@ -648,11 +661,20 @@ export default function BillPayment() {
         setUserData(fresh.data.data);
       } catch (_) { /* non-critical — balance will be stale until next load */ }
     } catch (e) {
+      const status = e?.response?.status;
       const msg = e?.response?.data?.message || e?.response?.data?.error || "Payment failed. Please try again.";
-      setModalError(msg);
-      // Clear PIN so user can re-enter
-      setModalPin(["", "", "", ""]);
-      setTimeout(() => pinRefs[0].current?.focus(), 50);
+      if (status === 429) {
+        setShowModal(false);
+        setFormError(msg);
+        if (msg.toLowerCase().includes("pin")) {
+          setPinLockedUntil(Date.now() + 10 * 60 * 1000);
+          setPinLockSecs(600);
+        }
+      } else {
+        setModalError(msg);
+        setModalPin(["", "", "", ""]);
+        setTimeout(() => pinRefs[0].current?.focus(), 50);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -1007,11 +1029,22 @@ export default function BillPayment() {
                       </div>
                     )}
 
+                    {/* PIN lockout banner */}
+                    {pinLockedUntil && (
+                      <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", borderRadius: 12, padding: "14px 18px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔒</span>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: ".88rem" }}>PIN Temporarily Blocked</div>
+                          <div style={{ fontSize: ".8rem", marginTop: 2 }}>Too many incorrect attempts. Try again in <strong>{Math.floor(pinLockSecs / 60)}:{String(pinLockSecs % 60).padStart(2, "0")}</strong></div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Error */}
                     {formError && <div className="bpf-error-banner">{formError}</div>}
 
                     {/* Submit */}
-                    <button className="bill-submit-btn" onClick={handleReview}>
+                    <button className="bill-submit-btn" onClick={handleReview} disabled={!!pinLockedUntil}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                       </svg>

@@ -309,6 +309,19 @@ export default function Withdrawal() {
     const [formError, setFormError] = useState("");
     const [success, setSuccess] = useState(null);
 
+    /* ── PIN lockout (pinLimiter — 10 min) ── */
+    const [pinLockedUntil, setPinLockedUntil] = useState(null);
+    const [pinLockSecs, setPinLockSecs] = useState(0);
+    useEffect(() => {
+        if (!pinLockedUntil) return;
+        const id = setInterval(() => {
+            const left = Math.max(0, Math.ceil((pinLockedUntil - Date.now()) / 1000));
+            setPinLockSecs(left);
+            if (left === 0) { setPinLockedUntil(null); clearInterval(id); }
+        }, 1000);
+        return () => clearInterval(id);
+    }, [pinLockedUntil]);
+
     // Real-time inline limit check — shown directly under the amount field as user types
     const amtVal = parseFloat(amount) || 0;
     const amountError =
@@ -368,10 +381,20 @@ export default function Withdrawal() {
             setSuccess(r.data);
             setShowModal(false);
         } catch (e) {
+            const status = e?.response?.status;
             const msg = e?.response?.data?.message || e?.response?.data?.error || "Withdrawal failed. Please try again.";
-            setModalError(msg);
-            setModalPin(["", "", "", ""]);
-            setTimeout(() => modalPinRefs[0].current?.focus(), 50);
+            if (status === 429) {
+                setShowModal(false);
+                setFormError(msg);
+                if (msg.toLowerCase().includes("pin")) {
+                    setPinLockedUntil(Date.now() + 10 * 60 * 1000);
+                    setPinLockSecs(600);
+                }
+            } else {
+                setModalError(msg);
+                setModalPin(["", "", "", ""]);
+                setTimeout(() => modalPinRefs[0].current?.focus(), 50);
+            }
         } finally {
             setSubmitting(false);
         }
@@ -573,6 +596,17 @@ export default function Withdrawal() {
                                 </div>
 
 
+                                {/* PIN lockout banner */}
+                                {pinLockedUntil && (
+                                    <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", borderRadius: 12, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+                                        <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔒</span>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: ".88rem" }}>PIN Temporarily Blocked</div>
+                                            <div style={{ fontSize: ".8rem", marginTop: 2 }}>Too many incorrect attempts. Try again in <strong>{Math.floor(pinLockSecs / 60)}:{String(pinLockSecs % 60).padStart(2, "0")}</strong></div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Error */}
                                 {formError && (
                                     <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", borderRadius: 10, padding: "11px 14px", fontSize: ".85rem", fontWeight: 600, marginBottom: 16 }}>
@@ -585,7 +619,7 @@ export default function Withdrawal() {
                                     id="withdrawal-submit"
                                     className="withdrawal-submit-btn"
                                     onClick={handleReview}
-                                    disabled={submitting || !!amountError}
+                                    disabled={submitting || !!amountError || !!pinLockedUntil}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
@@ -373,6 +373,18 @@ export default function Login({onLogin}) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [rateLock, setRateLock] = useState(null); // Date when authLimiter block expires
+  const [rateLockSecs, setRateLockSecs] = useState(0);
+
+  useEffect(() => {
+    if (!rateLock) return;
+    const id = setInterval(() => {
+      const left = Math.max(0, Math.ceil((rateLock - Date.now()) / 1000));
+      setRateLockSecs(left);
+      if (left === 0) { setRateLock(null); clearInterval(id); }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [rateLock]);
 
   const formik = useFormik({
     initialValues: { email: "", password: "", rememberMe: false },
@@ -395,8 +407,15 @@ export default function Login({onLogin}) {
         navigate("/dashboard");
 
       } catch (e) {
+        const status = e?.response?.status;
         const msg = e?.response?.data?.message || e?.response?.data?.error || "Network error. Please check your connection and try again.";
-        setApiError(msg);
+        if (status === 429) {
+          setApiError(""); // clear regular error — show lockout banner instead
+          setRateLock(Date.now() + 15 * 60 * 1000);
+          setRateLockSecs(900);
+        } else {
+          setApiError(msg);
+        }
       } finally {
         setSubmitting(false);
       }
@@ -449,6 +468,18 @@ export default function Login({onLogin}) {
         <main className="login-form-panel">
           <h1 className="login-heading">Welcome back</h1>
           <p className="login-subheading">Sign in to your Bank of Saturn account</p>
+
+          {/* Rate-limit lockout banner */}
+          {rateLock && (
+            <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", borderRadius: 8, padding: "12px 14px", marginBottom: 20, display: "flex", alignItems: "flex-start", gap: 10, fontSize: ".83rem", lineHeight: 1.5 }}>
+              <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>🔒</span>
+              <div>
+                <strong>Too many login attempts.</strong> Please wait{" "}
+                <strong>{Math.floor(rateLockSecs / 60)}:{String(rateLockSecs % 60).padStart(2, "0")}</strong>{" "}
+                before trying again.
+              </div>
+            </div>
+          )}
 
           {apiError && (
             <div className="login-api-error" role="alert">
@@ -534,7 +565,7 @@ export default function Login({onLogin}) {
             <button
               type="submit"
               className="btn-login"
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || !!rateLock}
             >
               {formik.isSubmitting ? (
                 <>

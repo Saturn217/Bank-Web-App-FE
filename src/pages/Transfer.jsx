@@ -325,7 +325,20 @@ export default function Transfer() {
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState("");
-    const [success, setSuccess] = useState(null); // transfer data on success
+    const [success, setSuccess] = useState(null);
+
+    /* ── PIN lockout (pinLimiter — 10 min) ── */
+    const [pinLockedUntil, setPinLockedUntil] = useState(null);
+    const [pinLockSecs, setPinLockSecs] = useState(0);
+    useEffect(() => {
+        if (!pinLockedUntil) return;
+        const id = setInterval(() => {
+            const left = Math.max(0, Math.ceil((pinLockedUntil - Date.now()) / 1000));
+            setPinLockSecs(left);
+            if (left === 0) { setPinLockedUntil(null); clearInterval(id); }
+        }, 1000);
+        return () => clearInterval(id);
+    }, [pinLockedUntil]);
 
     const handleLogout = () => { cookies.remove("token", { path: "/" }); navigate("/login"); };
 
@@ -412,12 +425,21 @@ export default function Transfer() {
             setSuccess(r.data.data);
             setShowModal(false);
         } catch (e) {
-            // Keep modal open — show error inside it
+            const status = e?.response?.status;
             const msg = e?.response?.data?.error || e?.response?.data?.message || "Transfer failed. Please try again.";
-            setModalError(msg);
-            // Clear PIN so user can re-enter
-            setModalPin(["", "", "", ""]);
-            setTimeout(() => modalPinRefs[0].current?.focus(), 50);
+            if (status === 429) {
+                // pinLimiter or transactionLimiter — close modal, show lockout
+                setShowModal(false);
+                setFormError(msg);
+                if (msg.toLowerCase().includes("pin")) {
+                    setPinLockedUntil(Date.now() + 10 * 60 * 1000);
+                    setPinLockSecs(600);
+                }
+            } else {
+                setModalError(msg);
+                setModalPin(["", "", "", ""]);
+                setTimeout(() => modalPinRefs[0].current?.focus(), 50);
+            }
         } finally {
             setSubmitting(false);
         }
@@ -642,7 +664,18 @@ export default function Transfer() {
                                 </div>
 
 
-                                {/* Error */}
+                                {/* PIN lockout banner */}
+                                {pinLockedUntil && (
+                                    <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", borderRadius: 12, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+                                        <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔒</span>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: ".88rem" }}>PIN Temporarily Blocked</div>
+                                            <div style={{ fontSize: ".8rem", marginTop: 2 }}>Too many incorrect attempts. Try again in <strong>{Math.floor(pinLockSecs / 60)}:{String(pinLockSecs % 60).padStart(2, "0")}</strong></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Form error */}
                                 {formError && (
                                     <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", borderRadius: 10, padding: "11px 14px", fontSize: ".85rem", fontWeight: 600, marginBottom: 16 }}>
                                         {formError}
@@ -654,7 +687,7 @@ export default function Transfer() {
                                     id="transfer-submit"
                                     className="transfer-submit-btn"
                                     onClick={handleReview}
-                                    disabled={verifying || submitting || !!amountError}
+                                    disabled={verifying || submitting || !!amountError || !!pinLockedUntil}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
