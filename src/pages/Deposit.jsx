@@ -315,8 +315,18 @@ export default function Deposit() {
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState("");
-    const [formErrorDetails, setFormErrorDetails] = useState(null); // { depositedToday, remaining, limit }
+    const [formErrorDetails, setFormErrorDetails] = useState(null);
     const [success, setSuccess] = useState(null);
+
+    // Real-time inline limit check — shown directly under the amount field as user types
+    const amtVal = parseFloat(amount) || 0;
+    const depositedToday = userData?.depositedToday ?? 0;
+    const dailyLimit = userData?.dailyDepositLimit ?? DAILY_DEPOSIT_LIMIT;
+    const remaining = dailyLimit - depositedToday;
+    const amountError =
+        amtVal > SINGLE_TX_LIMIT ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
+        amtVal > remaining        ? `Exceeds daily deposit limit. ₦${Math.max(0, remaining).toLocaleString("en-NG")} remaining today` :
+        "";
 
     const handleLogout = () => { cookies.remove("token", { path: "/" }); navigate("/login"); };
 
@@ -532,7 +542,10 @@ export default function Deposit() {
                                             onChange={(e) => { setAmount(e.target.value); setFormError(""); }}
                                         />
                                     </div>
-                                    <p className="dpf-hint">Minimum deposit: ₦100</p>
+                                    {amountError
+                                        ? <p className="dpf-hint" style={{ color: "var(--red)", fontWeight: 600 }}>⚠️ {amountError}</p>
+                                        : <p className="dpf-hint">Min: ₦100 · Max per transaction: ₦500,000 · Daily limit: ₦1,000,000</p>
+                                    }
 
                                     {/* Quick amount chips */}
                                     <div className="dpf-chips">
@@ -597,7 +610,7 @@ export default function Deposit() {
                                     id="deposit-submit"
                                     className="deposit-submit-btn"
                                     onClick={handleReview}
-                                    disabled={submitting}
+                                    disabled={submitting || !!amountError}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

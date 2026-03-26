@@ -309,6 +309,13 @@ export default function Withdrawal() {
     const [formError, setFormError] = useState("");
     const [success, setSuccess] = useState(null);
 
+    // Real-time inline limit check — shown directly under the amount field as user types
+    const amtVal = parseFloat(amount) || 0;
+    const amountError =
+        amtVal > SINGLE_TX_LIMIT   ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
+        amtVal > DAILY_WITHDRAW_LIMIT ? `Exceeds daily withdrawal limit of ₦${DAILY_WITHDRAW_LIMIT.toLocaleString("en-NG")}` :
+        "";
+
     const handleLogout = () => { cookies.remove("token", { path: "/" }); navigate("/login"); };
 
     /* ── Fetch balance ── */
@@ -546,7 +553,10 @@ export default function Withdrawal() {
                                             onChange={(e) => setAmount(e.target.value)}
                                         />
                                     </div>
-                                    <p className="wdf-hint">Min: ₦1,000 · Max per transaction: ₦500,000 · Daily limit: ₦1,000,000</p>
+                                    {amountError
+                                        ? <p className="wdf-hint" style={{ color: "var(--red)", fontWeight: 600 }}>⚠️ {amountError}</p>
+                                        : <p className="wdf-hint">Min: ₦1,000 · Max per transaction: ₦500,000 · Daily limit: ₦1,000,000</p>
+                                    }
                                 </div>
 
                                 {/* Note */}
@@ -575,7 +585,7 @@ export default function Withdrawal() {
                                     id="withdrawal-submit"
                                     className="withdrawal-submit-btn"
                                     onClick={handleReview}
-                                    disabled={submitting}
+                                    disabled={submitting || !!amountError}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
