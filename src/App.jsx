@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import Cookies from 'universal-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { clearUserCache } from './context/UserContext';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -50,6 +51,7 @@ function App() {
   const handleLogout = useCallback(() => {
     const cookies = new Cookies();
     cookies.remove("token", { path: "/" });
+    clearUserCache();
     window.location.href = "/login";
   }, []);
 

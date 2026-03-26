@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Cookies from "universal-cookie";
 import { Link } from "react-router-dom";
-import { useUser } from "../../context/UserContext";
+import { useUser, clearUserCache } from "../../context/UserContext";
 import { getTokenData } from "../../auth/auth";
 
 function getFirstName(sourceName = "") {
@@ -189,6 +189,7 @@ export default function Sidebar({ mobileOpen = false, onClose, onLogout, onNavig
       {showLogout && (
         <LogoutModal
           onConfirm={() => {
+            clearUserCache();
             new Cookies().remove("token", { path: "/" });
             window.location.replace("/login");
           }}

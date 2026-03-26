@@ -354,7 +354,7 @@ function TxnModal({ txn, onClose }) {
     );
 }
 
-/* ─── Main Component ──────────────────────────────────────────────── */
+
 export default function Transactionstable({ transactions = [], loading = false }) {
     const [selected, setSelected] = useState(null);
 
