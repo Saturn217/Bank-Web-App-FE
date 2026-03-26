@@ -55,8 +55,9 @@ export function UserProvider({ children }) {
 
       let user = dashResp.data.data || {};
 
-      // Fallback to /me if fullName missing from dashboard payload
-      if (!user?.fullName) {
+      // Fallback to /me if name is missing from dashboard payload
+      const hasName = user?.fullName || user?.name || user?.firstName;
+      if (!hasName) {
         try {
           const meResp = await axios.get(`${API}/me`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -67,9 +68,12 @@ export function UserProvider({ children }) {
         }
       }
 
+      // Resolve the display name from whichever field the API provides
+      const displayName = user?.fullName || user?.name || user?.firstName || "";
+
       // Cache ONLY the display name; nothing else is persisted.
-      writeCachedName(user.fullName);
-      setCachedName(user.fullName || "");
+      writeCachedName(displayName);
+      setCachedName(displayName);
       setUserData(user);
     } catch {
       // Unauthorized — individual pages handle redirect
@@ -82,7 +86,12 @@ export function UserProvider({ children }) {
 
   // Merge cachedName into userData so Sidebar/Topbar get the name instantly,
   // even before the full API response arrives.
-  const mergedUserData = userData ?? (cachedName ? { fullName: cachedName } : null);
+  // Also normalise to fullName so components don't need to check multiple fields.
+  const mergedUserData = userData
+    ? { ...userData, fullName: userData.fullName || userData.name || userData.firstName || cachedName }
+    : cachedName
+    ? { fullName: cachedName }
+    : null;
 
   return (
     <UserContext.Provider value={{ userData: mergedUserData, userLoading, refreshUser: fetchUser }}>
