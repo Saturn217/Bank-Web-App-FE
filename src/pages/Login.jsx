@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { jwtDecode } from "jwt-decode";
+import { useUser } from "../context/UserContext";
 
 /* ─── Brand tokens (mirrored from LandingPage) ─── */
 const style = `
@@ -368,6 +369,7 @@ const loginSchema = Yup.object({
 
 /* ─── Login component ─── */
 export default function Login({onLogin}) {
+  const { refreshUser } = useUser();
 
   let cookies = new Cookies()
   const navigate = useNavigate();
@@ -403,6 +405,8 @@ export default function Login({onLogin}) {
           expires: new Date(decoded.exp * 1000),
         });
 
+        // Trigger UserContext to fetch user data now that the token is set
+        refreshUser();
         onLogin();
         navigate("/dashboard");
 

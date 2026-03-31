@@ -82,7 +82,16 @@ export function UserProvider({ children }) {
     }
   }, []);
 
+  // Run once on mount
   useEffect(() => { fetchUser(); }, [fetchUser]);
+
+  // Safety net: if userData is still null but a token now exists
+  // (e.g. context mounted before login completed), re-fetch.
+  useEffect(() => {
+    if (userData !== null) return; // already have data
+    const token = new Cookies().get("token");
+    if (token) fetchUser();
+  }, [userData, fetchUser]);
 
   // Merge cachedName into userData so Sidebar/Topbar get the name instantly,
   // even before the full API response arrives.
