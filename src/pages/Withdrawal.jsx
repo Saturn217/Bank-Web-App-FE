@@ -272,7 +272,7 @@ const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // Transaction limits (must match backend .env)
-const SINGLE_TX_LIMIT      = 500_000;  // per single transaction
+const SINGLE_TX_LIMIT = 500_000;  // per single transaction
 const DAILY_WITHDRAW_LIMIT = 1_000_000; // per day
 
 function Spin() {
@@ -289,7 +289,7 @@ export default function Withdrawal() {
     const navigate = useNavigate();
     const cookies = new Cookies();
     const token = cookies.get("token");
-  const { roles: userRole } = getTokenData();
+    const { roles: userRole } = getTokenData();
 
     const [userData, setUserData] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -326,9 +326,9 @@ export default function Withdrawal() {
     // Real-time inline limit check — shown directly under the amount field as user types
     const amtVal = parseFloat(amount) || 0;
     const amountError =
-        amtVal > SINGLE_TX_LIMIT   ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
-        amtVal > DAILY_WITHDRAW_LIMIT ? `Exceeds daily withdrawal limit of ₦${DAILY_WITHDRAW_LIMIT.toLocaleString("en-NG")}` :
-        "";
+        amtVal > SINGLE_TX_LIMIT ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
+            amtVal > DAILY_WITHDRAW_LIMIT ? `Exceeds daily withdrawal limit of ₦${DAILY_WITHDRAW_LIMIT.toLocaleString("en-NG")}` :
+                "";
 
     const handleLogout = () => { cookies.remove("token", { path: "/" }); navigate("/login"); };
 
@@ -389,7 +389,7 @@ export default function Withdrawal() {
             }));
             axios.get(`${API}/dashboard`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => setUserData(res.data.data))
-                .catch(() => {});
+                .catch(() => { });
         } catch (e) {
             const status = e?.response?.status;
             const msg = e?.response?.data?.message || e?.response?.data?.error || "Withdrawal failed. Please try again.";
@@ -561,8 +561,8 @@ export default function Withdrawal() {
                                     }}>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                             stroke="#d97706" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                            <rect x="3" y="11" width="18" height="11" rx="2"/>
-                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                         </svg>
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -584,7 +584,7 @@ export default function Withdrawal() {
                                         >
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                                             </svg>
                                             Set PIN in My Profile
                                         </Link>
@@ -618,6 +618,32 @@ export default function Withdrawal() {
                                 color="amber"
                                 label="Daily Withdrawal Limit"
                             />
+
+                            {/* No PIN banner */}
+                            {userData && !userData.hasTransactionPin && (
+                                <div style={{
+                                    background: "#fffbeb", border: "1px solid #f59e0b",
+                                    borderRadius: 12, padding: "14px 18px", marginBottom: 20,
+                                    display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12
+                                }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                        <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔐</span>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: ".88rem", color: "#92400e" }}>Transaction PIN Not Set</div>
+                                            <div style={{ fontSize: ".8rem", color: "#b45309", marginTop: 2 }}>
+                                                You need a PIN to make withdrawals.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Link to="/profile" style={{
+                                        background: "#d97706", color: "white", border: "none",
+                                        borderRadius: 8, padding: "8px 14px", fontSize: ".8rem",
+                                        fontWeight: 700, cursor: "pointer", textDecoration: "none", flexShrink: 0
+                                    }}>
+                                        Set PIN
+                                    </Link>
+                                </div>
+                            )}
 
                             <div className="withdrawal-card">
                                 {/* Info box */}
