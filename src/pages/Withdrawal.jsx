@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { getTokenData } from "../auth/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
 import PageLoader from "../components/PageLoader";
@@ -546,6 +546,52 @@ export default function Withdrawal() {
                             <h1 className="withdrawal-page-title">Withdraw Funds</h1>
                             <p className="withdrawal-page-sub">Withdraw cash from your Bank of Saturn account.</p>
 
+                            {/* ── No-PIN warning banner ── */}
+                            {userData?.hasTransactionPin === false && (
+                                <div style={{
+                                    display: "flex", alignItems: "flex-start", gap: 14,
+                                    background: "#fffbeb", border: "1.5px solid #f59e0b",
+                                    borderRadius: 14, padding: "16px 20px", marginBottom: 20,
+                                    boxShadow: "0 2px 12px rgba(245,158,11,.12)",
+                                }}>
+                                    <div style={{
+                                        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                                        background: "#fef3c7", display: "flex",
+                                        alignItems: "center", justifyContent: "center",
+                                    }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="#d97706" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                        </svg>
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 700, fontSize: ".9rem", color: "#92400e", marginBottom: 4 }}>
+                                            Transaction PIN Required
+                                        </div>
+                                        <div style={{ fontSize: ".82rem", color: "#78350f", lineHeight: 1.55 }}>
+                                            You haven't set a transaction PIN yet. A PIN is required to authorise withdrawals and keep your account secure.
+                                        </div>
+                                        <Link
+                                            to="/profile"
+                                            style={{
+                                                display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10,
+                                                padding: "7px 16px", borderRadius: 8,
+                                                background: "#d97706", color: "white",
+                                                fontFamily: "'DM Sans',sans-serif", fontSize: ".82rem", fontWeight: 700,
+                                                textDecoration: "none", transition: "opacity .15s",
+                                            }}
+                                        >
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                            </svg>
+                                            Set PIN in My Profile
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Account identity pill */}
                             <div className="withdrawal-balance-pill">
                                 <div className="withdrawal-balance-pill-icon">
@@ -638,7 +684,7 @@ export default function Withdrawal() {
                                     id="withdrawal-submit"
                                     className="withdrawal-submit-btn"
                                     onClick={handleReview}
-                                    disabled={submitting || !!amountError || !!pinLockedUntil}
+                                    disabled={submitting || !!amountError || !!pinLockedUntil || userData?.hasTransactionPin === false}
                                 >
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
