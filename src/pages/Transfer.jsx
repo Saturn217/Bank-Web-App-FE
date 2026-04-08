@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
 import PageLoader from "../components/PageLoader";
+import DailyLimitBar from "../components/Dashboard/DailyLimitBar";
 
 /* ─── Styles ──────────────────────────────────────────────────── */
 const style = `
@@ -455,10 +456,11 @@ export default function Transfer() {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // ✅ update balance pill in real time using the newBalance from the response
+            // ✅ update balance pill + daily limit bar in real time
             setUserData(prev => ({
                 ...prev,
-                totalBalance: r.data.data.sender.newBalance
+                totalBalance: r.data.data.sender.newBalance,
+                transferredToday: (prev?.transferredToday ?? 0) + parseFloat(amount),
             }));
 
             setSuccess(r.data.data);
@@ -640,6 +642,15 @@ export default function Transfer() {
                                     <span className="transfer-balance-pill-bal-value">{userData ? fmt(userData.totalBalance) : "—"}</span>
                                 </div>
                             </div>
+
+                            {/* Daily limit bar */}
+                            <DailyLimitBar
+                                used={userData?.transferredToday ?? 0}
+                                pending={amtVal}
+                                limit={DAILY_TRANSFER_LIMIT}
+                                color="blue"
+                                label="Daily Transfer Limit"
+                            />
 
                             <div className="transfer-card">
                                 {/* Amount */}

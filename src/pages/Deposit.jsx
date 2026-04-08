@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
 import PageLoader from "../components/PageLoader";
+import DailyLimitBar from "../components/Dashboard/DailyLimitBar";
 
 /* ─── Styles ──────────────────────────────────────────────── */
 const style = `
@@ -519,6 +520,15 @@ export default function Deposit() {
                                     <span className="deposit-balance-pill-bal-value">{userData ? fmt(userData.totalBalance) : "—"}</span>
                                 </div>
                             </div>
+
+                            {/* Daily limit bar */}
+                            <DailyLimitBar
+                                used={depositedToday}
+                                pending={amtVal}
+                                limit={dailyLimit}
+                                color="green"
+                                label="Daily Deposit Limit"
+                            />
 
                             <div className="deposit-card">
                                 {/* Info box */}

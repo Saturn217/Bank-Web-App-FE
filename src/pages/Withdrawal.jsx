@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Dashboard/Sidebar";
 import Topbar from "../components/Dashboard/Topbar";
 import PageLoader from "../components/PageLoader";
+import DailyLimitBar from "../components/Dashboard/DailyLimitBar";
 
 /* ─── Styles ──────────────────────────────────────────────────── */
 const style = `
@@ -380,6 +381,15 @@ export default function Withdrawal() {
             );
             setSuccess(r.data);
             setShowModal(false);
+            // ✅ update daily limit bar instantly + silently refetch for accuracy
+            setUserData(prev => ({
+                ...prev,
+                totalBalance: (prev?.totalBalance ?? 0) - parseFloat(amount),
+                withdrawnToday: (prev?.withdrawnToday ?? 0) + parseFloat(amount),
+            }));
+            axios.get(`${API}/dashboard`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setUserData(res.data.data))
+                .catch(() => {});
         } catch (e) {
             const status = e?.response?.status;
             const msg = e?.response?.data?.message || e?.response?.data?.error || "Withdrawal failed. Please try again.";
@@ -553,6 +563,15 @@ export default function Withdrawal() {
                                     <span className="withdrawal-balance-pill-bal-value">{userData ? fmt(userData.totalBalance) : "—"}</span>
                                 </div>
                             </div>
+
+                            {/* Daily limit bar */}
+                            <DailyLimitBar
+                                used={userData?.withdrawnToday ?? 0}
+                                pending={amtVal}
+                                limit={DAILY_WITHDRAW_LIMIT}
+                                color="amber"
+                                label="Daily Withdrawal Limit"
+                            />
 
                             <div className="withdrawal-card">
                                 {/* Info box */}
