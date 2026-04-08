@@ -272,7 +272,7 @@ const API = "https://bank-web-app-eight.vercel.app/api/v1";
 const fmt = (n) => "₦" + Number(n || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // Transaction limits (must match backend .env)
-const SINGLE_TX_LIMIT   = 500_000;   // per single transaction
+const SINGLE_TX_LIMIT = 500_000;   // per single transaction
 const DAILY_TRANSFER_LIMIT = 2_000_000; // per day
 
 /* ── Spinner ── */
@@ -292,7 +292,7 @@ export default function Transfer() {
     const cookies = new Cookies();
     const token = cookies.get("token");
 
-  const { roles: userRole } = getTokenData();
+    const { roles: userRole } = getTokenData();
 
     /* ── user data (balance + name) ── */
     const [userData, setUserData] = useState(null);
@@ -307,9 +307,9 @@ export default function Transfer() {
     // Real-time inline limit check — shown directly under the amount field as user types
     const amtVal = parseFloat(amount) || 0;
     const amountError =
-        amtVal > SINGLE_TX_LIMIT      ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
-        amtVal > DAILY_TRANSFER_LIMIT  ? `Exceeds daily transfer limit of ₦${DAILY_TRANSFER_LIMIT.toLocaleString("en-NG")}` :
-        "";
+        amtVal > SINGLE_TX_LIMIT ? `Exceeds single transaction limit of ₦${SINGLE_TX_LIMIT.toLocaleString("en-NG")}` :
+            amtVal > DAILY_TRANSFER_LIMIT ? `Exceeds daily transfer limit of ₦${DAILY_TRANSFER_LIMIT.toLocaleString("en-NG")}` :
+                "";
 
     /* ── modal PIN state ── */
     const [modalPin, setModalPin] = useState(["", "", "", ""]);
@@ -412,6 +412,38 @@ export default function Transfer() {
     };
 
     /* ── Submit transfer ── */
+    // const handleConfirm = async () => {
+    //     if (modalPinValue.length !== 4) { setModalError("Please enter your 4-digit PIN."); return; }
+    //     setSubmitting(true);
+    //     setModalError("");
+    //     try {
+    //         const r = await axios.post(
+    //             `${API}/transfer`,
+    //             { receiverAccount: accNum, amount: parseFloat(amount), note, transactionPin: modalPinValue },
+    //             { headers: { Authorization: `Bearer ${token}` } }
+    //         );
+    //         setSuccess(r.data.data);
+    //         setShowModal(false);
+    //     } catch (e) {
+    //         const status = e?.response?.status;
+    //         const msg = e?.response?.data?.error || e?.response?.data?.message || "Transfer failed. Please try again.";
+    //         if (status === 429) {
+    //             // pinLimiter or transactionLimiter — close modal, show lockout
+    //             setShowModal(false);
+    //             setFormError(msg);
+    //             if (msg.toLowerCase().includes("pin")) {
+    //                 setPinLockedUntil(Date.now() + 10 * 60 * 1000);
+    //                 setPinLockSecs(600);
+    //             }
+    //         } else {
+    //             setModalError(msg);
+    //             setModalPin(["", "", "", ""]);
+    //             setTimeout(() => modalPinRefs[0].current?.focus(), 50);
+    //         }
+    //     } finally {
+    //         setSubmitting(false);
+    //     }
+    // };
     const handleConfirm = async () => {
         if (modalPinValue.length !== 4) { setModalError("Please enter your 4-digit PIN."); return; }
         setSubmitting(true);
@@ -422,13 +454,19 @@ export default function Transfer() {
                 { receiverAccount: accNum, amount: parseFloat(amount), note, transactionPin: modalPinValue },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
+            // ✅ update balance pill in real time using the newBalance from the response
+            setUserData(prev => ({
+                ...prev,
+                totalBalance: r.data.data.sender.newBalance
+            }));
+
             setSuccess(r.data.data);
             setShowModal(false);
         } catch (e) {
             const status = e?.response?.status;
             const msg = e?.response?.data?.error || e?.response?.data?.message || "Transfer failed. Please try again.";
             if (status === 429) {
-                // pinLimiter or transactionLimiter — close modal, show lockout
                 setShowModal(false);
                 setFormError(msg);
                 if (msg.toLowerCase().includes("pin")) {
