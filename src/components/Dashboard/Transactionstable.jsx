@@ -76,6 +76,16 @@ const MODAL_CSS = `
   .txn-modal-close:hover { background: #122850; }
 `;
 
+
+const fmtDateTime = (d) => new Date(d).toLocaleString("en-NG", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
+});
+
+const fmtTime = (d) => new Date(d).toLocaleTimeString("en-NG", {
+    hour: "2-digit", minute: "2-digit"
+});
+
 function injectModalStyles() {
     if (document.getElementById("txn-modal-styles")) return;
     const el = document.createElement("style");
@@ -112,14 +122,14 @@ function isCredit(txn) {
 }
 
 const txnColors = {
-    "savings interest":  { bg: "#f0fdf4", color: "#16a34a" },
-    "savings deposit":   { bg: "#f0fdf4", color: "#16a34a" },
-    "bill payment":      { bg: "#fef2f2", color: "#dc2626" },
-    "transfer out":      { bg: "#fef2f2", color: "#dc2626" },
-    "transfer in":       { bg: "#f0fdf4", color: "#16a34a" },
-    "transfer":          { bg: "#eff6ff", color: "#2563eb" },
-    "deposit":           { bg: "#f0fdf4", color: "#16a34a" },
-    "withdrawal":        { bg: "#fff7ed", color: "#d97706" },
+    "savings interest": { bg: "#f0fdf4", color: "#16a34a" },
+    "savings deposit": { bg: "#f0fdf4", color: "#16a34a" },
+    "bill payment": { bg: "#fef2f2", color: "#dc2626" },
+    "transfer out": { bg: "#fef2f2", color: "#dc2626" },
+    "transfer in": { bg: "#f0fdf4", color: "#16a34a" },
+    "transfer": { bg: "#eff6ff", color: "#2563eb" },
+    "deposit": { bg: "#f0fdf4", color: "#16a34a" },
+    "withdrawal": { bg: "#fff7ed", color: "#d97706" },
 };
 
 function getTypeBadge(type = "") {
@@ -152,12 +162,6 @@ function statusClass(status = "") {
     return "success";
 }
 
-/* ─── Row primary label ──────────────────────────────────────────── */
-// Shows "To [name]" / "From [name]" for transfers,
-// or a clean short label for other types
-// Try to extract a name from description like
-// "Transfer of ₦8,000 to Lola (1577344874)"
-// "Received ₦52,000 from Oladele Olayinka (1419536159)"
 function extractNameFromDesc(desc, credit) {
     if (!desc) return null;
     // "... to Name (acct)" or "... to Name"
@@ -192,7 +196,7 @@ function rowLabel(txn) {
 /* Row direction icon */
 function RowIcon({ credit }) {
     const isNeutral = credit === null;
-    const bg    = isNeutral ? "#f5f3ff" : credit ? "#f0fdf4" : "#fef2f2";
+    const bg = isNeutral ? "#f5f3ff" : credit ? "#f0fdf4" : "#fef2f2";
     const color = isNeutral ? "#7c3aed" : credit ? "#16a34a" : "#ef4444";
     return (
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -257,7 +261,9 @@ function TxnModal({ txn, onClose }) {
                     {/* Date */}
                     <div className="txn-modal-row">
                         <span className="txn-modal-row-label">Date & time</span>
-                        <span className="txn-modal-row-value">{txn.date}</span>
+                        <span className="txn-modal-row-value">
+                            {txn.createdAt ? fmtDateTime(txn.createdAt) : txn.date}
+                        </span>
                     </div>
 
                     {/* Transfer party */}
@@ -426,7 +432,7 @@ export default function Transactionstable({ transactions = [], loading = false }
                                             </div>
                                             <div style={{ marginTop: 4 }}>
                                                 <span style={{ fontSize: "0.72rem", color: "#94a3b8", whiteSpace: "nowrap" }}>
-                                                    {txn.date}
+                                                    {txn.date}{txn.createdAt ? ` · ${fmtTime(txn.createdAt)}` : ""}
                                                 </span>
                                             </div>
                                         </div>
