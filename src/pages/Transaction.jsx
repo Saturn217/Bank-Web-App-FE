@@ -626,7 +626,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Bill Info</div>
               <div className="txd-row">
-                <span className="txd-lbl">Bill Type</span>
+                <span className="txd-lbl">Bill Type:</span>
                 <span className="txd-val" style={{ textTransform: "capitalize" }}>{tx.billType}</span>
               </div>
               {tx.billProvider && (
