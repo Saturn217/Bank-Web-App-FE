@@ -419,7 +419,7 @@ const isCredit = (tx, userAcct) => {
 };
 
 
-/* ── Row label helpers (same as Transactionstable) ───────────── */
+
 function extractNameFromDesc(desc, credit) {
   if (!desc) return null;
   const toMatch = desc.match(/\bto\s+([^(\n]+?)(?:\s*\([^)]+\))?$/i);
@@ -476,7 +476,6 @@ const FILTERS = [
   { label: "Savings", value: "savings_deposit,savings_interest,savings_withdrawal" },
 ];
 
-/* ── Page numbers helper ─────────────────────────────────────── */
 function pageNumbers(current, total) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const pages = [];
@@ -488,7 +487,7 @@ function pageNumbers(current, total) {
   return pages;
 }
 
-/* ── Transaction Detail Modal ────────────────────────────────── */
+
 function TxDetailModal({ tx, userAcct, onClose }) {
   if (!tx) return null;
   const meta = getMeta(tx.type);
@@ -554,7 +553,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
               <div className="txd-section-label" style={{ marginTop: 18 }}>Parties</div>
               {tx.senderAccount && (
                 <div className="txd-row">
-                  <span className="txd-lbl">From</span>
+                  <span className="txd-lbl">From:</span>
                   <span className="txd-val">
                     {tx.senderName || "—"}
                     <span style={{ fontWeight: 500, color: "var(--muted)", marginLeft: 4 }}>({tx.senderAccount})</span>
@@ -563,7 +562,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
               )}
               {tx.receiverAccount && (
                 <div className="txd-row">
-                  <span className="txd-lbl">To</span>
+                  <span className="txd-lbl">To:</span>
                   <span className="txd-val">
                     {tx.receiverName || "—"}
                     <span style={{ fontWeight: 500, color: "var(--muted)", marginLeft: 4 }}>({tx.receiverAccount})</span>
@@ -577,7 +576,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
               <div className="txd-row">
-                <span className="txd-lbl">Credited To</span>
+                <span className="txd-lbl">Credited To:</span>
                 <span className="txd-val">{tx.accountNumber || userAcct}</span>
               </div>
             </>
@@ -587,7 +586,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
               <div className="txd-row">
-                <span className="txd-lbl">Withdrawn From</span>
+                <span className="txd-lbl">Withdrawn From:</span>
                 <span className="txd-val">{tx.accountNumber || userAcct}</span>
               </div>
             </>
@@ -597,7 +596,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
               <div className="txd-row">
-                <span className="txd-lbl">Moved To</span>
+                <span className="txd-lbl">Moved To:</span>
                 <span className="txd-val">Savings Account</span>
               </div>
             </>
@@ -607,7 +606,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
               <div className="txd-row">
-                <span className="txd-lbl">Moved To</span>
+                <span className="txd-lbl">Moved To:</span>
                 <span className="txd-val">Main Account</span>
               </div>
             </>
@@ -617,7 +616,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
               <div className="txd-row">
-                <span className="txd-lbl">Credited To</span>
+                <span className="txd-lbl">Credited To:</span>
                 <span className="txd-val">Savings Account</span>
               </div>
             </>
@@ -632,13 +631,13 @@ function TxDetailModal({ tx, userAcct, onClose }) {
               </div>
               {tx.billProvider && (
                 <div className="txd-row">
-                  <span className="txd-lbl">Provider</span>
+                  <span className="txd-lbl">Provider:</span>
                   <span className="txd-val">{tx.billProvider}</span>
                 </div>
               )}
               {tx.billReference && (
                 <div className="txd-row">
-                  <span className="txd-lbl">Reference</span>
+                  <span className="txd-lbl">Reference:</span>
                   <span className="txd-val mono">{tx.billReference}</span>
                 </div>
               )}
