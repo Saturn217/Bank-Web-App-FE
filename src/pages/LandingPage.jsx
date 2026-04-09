@@ -646,7 +646,7 @@ export default function LandingPage() {
             <div className="col-lg-6 col-12">
               <div className="hero-badge">
                 <span className="hero-badge-dot" />
-                Trusted by 250,000+ SQI Students
+                Trusted by 250,000+ Nigerians
               </div>
               <h1>
                 Banking That<br />
