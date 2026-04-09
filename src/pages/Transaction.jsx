@@ -394,13 +394,13 @@ const fmtDateTime = (d) => new Date(d).toLocaleString("en-NG", { day: "2-digit",
 const fmtTime = (d) => new Date(d).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" });
 
 const TYPE_META = {
-  deposit:           { label: "Deposit",          emoji: "↓", bg: "#f0fdf4", color: "#16a34a", badgeBg: "#dcfce7", badgeColor: "#15803d" },
-  withdrawal:        { label: "Withdrawal",        emoji: "↑", bg: "#fef2f2", color: "#ef4444", badgeBg: "#fee2e2", badgeColor: "#dc2626" },
-  transfer:          { label: "Transfer",          emoji: "⇄", bg: "#eff6ff", color: "#2563eb", badgeBg: "#dbeafe", badgeColor: "#1d4ed8" },
-  bill_payment:      { label: "Bill Payment",      emoji: "📄", bg: "#fffbeb", color: "#d97706", badgeBg: "#fef3c7", badgeColor: "#b45309" },
-  savings_deposit:   { label: "Savings Deposit",  emoji: "🏦", bg: "#f0fdf4", color: "#16a34a", badgeBg: "#dcfce7", badgeColor: "#15803d" },
-  savings_interest:  { label: "Interest",          emoji: "✦", bg: "#f5f3ff", color: "#7c3aed", badgeBg: "#ede9fe", badgeColor: "#6d28d9" },
-  savings_withdrawal:{ label: "Savings Withdrawal",emoji: "↑", bg: "#fef2f2", color: "#ef4444", badgeBg: "#fee2e2", badgeColor: "#dc2626" },
+  deposit: { label: "Deposit", emoji: "↓", bg: "#f0fdf4", color: "#16a34a", badgeBg: "#dcfce7", badgeColor: "#15803d" },
+  withdrawal: { label: "Withdrawal", emoji: "↑", bg: "#fef2f2", color: "#ef4444", badgeBg: "#fee2e2", badgeColor: "#dc2626" },
+  transfer: { label: "Transfer", emoji: "⇄", bg: "#eff6ff", color: "#2563eb", badgeBg: "#dbeafe", badgeColor: "#1d4ed8" },
+  bill_payment: { label: "Bill Payment", emoji: "📄", bg: "#fffbeb", color: "#d97706", badgeBg: "#fef3c7", badgeColor: "#b45309" },
+  savings_deposit: { label: "Savings Deposit", emoji: "🏦", bg: "#f0fdf4", color: "#16a34a", badgeBg: "#dcfce7", badgeColor: "#15803d" },
+  savings_interest: { label: "Interest", emoji: "✦", bg: "#f5f3ff", color: "#7c3aed", badgeBg: "#ede9fe", badgeColor: "#6d28d9" },
+  savings_withdrawal: { label: "Savings Withdrawal", emoji: "↑", bg: "#fef2f2", color: "#ef4444", badgeBg: "#fee2e2", badgeColor: "#dc2626" },
 };
 
 const getMeta = (t) => TYPE_META[t] || { label: t, emoji: "•", bg: "#f1f5f9", color: "#64748b", badgeBg: "#e2e8f0", badgeColor: "#475569" };
@@ -422,58 +422,58 @@ const isCredit = (tx, userAcct) => {
 /* ── Row label helpers (same as Transactionstable) ───────────── */
 function extractNameFromDesc(desc, credit) {
   if (!desc) return null;
-  const toMatch   = desc.match(/\bto\s+([^(\n]+?)(?:\s*\([^)]+\))?$/i);
+  const toMatch = desc.match(/\bto\s+([^(\n]+?)(?:\s*\([^)]+\))?$/i);
   const fromMatch = desc.match(/\bfrom\s+([^(\n]+?)(?:\s*\([^)]+\))?$/i);
-  if (!credit && toMatch)   return toMatch[1].trim();
-  if (credit  && fromMatch) return fromMatch[1].trim();
+  if (!credit && toMatch) return toMatch[1].trim();
+  if (credit && fromMatch) return fromMatch[1].trim();
   return null;
 }
 
 function rowLabel(tx, userAcct) {
-  const type   = (tx.type || "").toLowerCase();
+  const type = (tx.type || "").toLowerCase();
   const credit = isCredit(tx, userAcct);
-  const party  =
-    (credit ? (tx.senderName   || null) : (tx.receiverName  || null)) ||
+  const party =
+    (credit ? (tx.senderName || null) : (tx.receiverName || null)) ||
     extractNameFromDesc(tx.description, credit);
 
   if (type === "transfer") {
     if (party) return credit ? `From ${party}` : `To ${party}`;
     return credit ? "Received transfer" : "Sent transfer";
   }
-  if (type === "bill_payment")      return tx.billProvider || "Bill payment";
-  if (type === "savings_interest")  return "Interest earned";
-  if (type === "savings_deposit")   return "Moved to savings";
+  if (type === "bill_payment") return tx.billProvider || "Bill payment";
+  if (type === "savings_interest") return "Interest earned";
+  if (type === "savings_deposit") return "Moved to savings";
   if (type === "savings_withdrawal") return "Withdrawn from savings";
-  if (type === "deposit")           return "Account deposit";
-  if (type === "withdrawal")        return "Cash withdrawal";
+  if (type === "deposit") return "Account deposit";
+  if (type === "withdrawal") return "Cash withdrawal";
   return tx.description || tx.type || "Transaction";
 }
 
 /* ── Direction icon ──────────────────────────────────────────── */
 function TxRowIcon({ credit }) {
   const isNeutral = credit === null;
-  const bg    = isNeutral ? "#f5f3ff" : credit ? "#f0fdf4" : "#fef2f2";
+  const bg = isNeutral ? "#f5f3ff" : credit ? "#f0fdf4" : "#fef2f2";
   const color = isNeutral ? "#7c3aed" : credit ? "#16a34a" : "#ef4444";
   return (
     <div style={{ width: 36, height: 36, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         {isNeutral
-          ? <><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>
+          ? <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>
           : credit
-            ? <><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></>
-            : <><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></>
+            ? <><line x1="17" y1="7" x2="7" y2="17" /><polyline points="17 17 7 17 7 7" /></>
+            : <><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></>
         }
       </svg>
     </div>
   );
 }
 const FILTERS = [
-  { label: "All",          value: "" },
-  { label: "Deposits",     value: "deposit" },
-  { label: "Withdrawals",  value: "withdrawal" },
-  { label: "Transfers",    value: "transfer" },
-  { label: "Bills",        value: "bill_payment" },
-  { label: "Savings",      value: "savings_deposit,savings_interest,savings_withdrawal" },
+  { label: "All", value: "" },
+  { label: "Deposits", value: "deposit" },
+  { label: "Withdrawals", value: "withdrawal" },
+  { label: "Transfers", value: "transfer" },
+  { label: "Bills", value: "bill_payment" },
+  { label: "Savings", value: "savings_deposit,savings_interest,savings_withdrawal" },
 ];
 
 /* ── Page numbers helper ─────────────────────────────────────── */
@@ -514,7 +514,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             className="txd-status-badge"
             style={{
               background: tx.status === "success" ? "#dcfce7" : tx.status === "pending" ? "#fef3c7" : "#fee2e2",
-              color:      tx.status === "success" ? "#15803d" : tx.status === "pending" ? "#92400e" : "#dc2626",
+              color: tx.status === "success" ? "#15803d" : tx.status === "pending" ? "#92400e" : "#dc2626",
             }}
           >
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
@@ -548,8 +548,8 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             </span>
           </div>
 
-          {/* Parties */}
-          {(tx.senderAccount || tx.receiverAccount) && (
+          
+          {tx.type === "transfer" && (
             <>
               <div className="txd-section-label" style={{ marginTop: 18 }}>Parties</div>
               {tx.senderAccount && (
@@ -573,6 +573,55 @@ function TxDetailModal({ tx, userAcct, onClose }) {
             </>
           )}
 
+          {tx.type === "deposit" && (
+            <>
+              <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
+              <div className="txd-row">
+                <span className="txd-lbl">Credited To</span>
+                <span className="txd-val">{tx.accountNumber || userAcct}</span>
+              </div>
+            </>
+          )}
+
+          {tx.type === "withdrawal" && (
+            <>
+              <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
+              <div className="txd-row">
+                <span className="txd-lbl">Withdrawn From</span>
+                <span className="txd-val">{tx.accountNumber || userAcct}</span>
+              </div>
+            </>
+          )}
+
+          {tx.type === "savings_deposit" && (
+            <>
+              <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
+              <div className="txd-row">
+                <span className="txd-lbl">Moved To</span>
+                <span className="txd-val">Savings Account</span>
+              </div>
+            </>
+          )}
+
+          {tx.type === "savings_withdrawal" && (
+            <>
+              <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
+              <div className="txd-row">
+                <span className="txd-lbl">Moved To</span>
+                <span className="txd-val">Main Account</span>
+              </div>
+            </>
+          )}
+
+          {tx.type === "savings_interest" && (
+            <>
+              <div className="txd-section-label" style={{ marginTop: 18 }}>Details</div>
+              <div className="txd-row">
+                <span className="txd-lbl">Credited To</span>
+                <span className="txd-val">Savings Account</span>
+              </div>
+            </>
+          )}
           {/* Bill details */}
           {tx.billType && (
             <>
@@ -619,7 +668,7 @@ function TxDetailModal({ tx, userAcct, onClose }) {
   );
 }
 
-/* ── Skeleton rows ───────────────────────────────────────────── */
+
 function SkeletonRows({ n = 8 }) {
   return Array.from({ length: n }).map((_, i) => (
     <div className="txh-skel-row" key={i}>
@@ -633,7 +682,7 @@ function SkeletonRows({ n = 8 }) {
   ));
 }
 
-/* ── Main component ──────────────────────────────────────────── */
+
 export default function Transactions() {
   const navigate = useNavigate();
   const cookies = new Cookies();
@@ -643,18 +692,17 @@ export default function Transactions() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  /* data */
-  const [txns, setTxns]         = useState([]);
-  const [meta, setMeta]         = useState({ count: 0, page: 1, limit: 10, totalPages: 1 });
-  const [loading, setLoading]   = useState(true);
+  const [txns, setTxns] = useState([]);
+  const [meta, setMeta] = useState({ count: 0, page: 1, limit: 10, totalPages: 1 });
+  const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [error, setError]       = useState("");
+  const [error, setError] = useState("");
 
   /* controls */
-  const [filter, setFilter]     = useState("");
-  const [sort, setSort]         = useState("desc");
-  const [page, setPage]         = useState(1);
-  const [search, setSearch]     = useState("");
+  const [filter, setFilter] = useState("");
+  const [sort, setSort] = useState("desc");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
   /* detail modal */
@@ -705,18 +753,18 @@ export default function Transactions() {
   /* client-side search filter */
   const displayed = search
     ? txns.filter(tx =>
-        (tx.description || "").toLowerCase().includes(search) ||
-        (tx.type || "").toLowerCase().includes(search) ||
-        (tx.billProvider || "").toLowerCase().includes(search) ||
-        (tx.senderAccount || "").includes(search) ||
-        (tx.receiverAccount || "").includes(search) ||
-        String(Math.abs(tx.amount)).includes(search)
-      )
+      (tx.description || "").toLowerCase().includes(search) ||
+      (tx.type || "").toLowerCase().includes(search) ||
+      (tx.billProvider || "").toLowerCase().includes(search) ||
+      (tx.senderAccount || "").includes(search) ||
+      (tx.receiverAccount || "").includes(search) ||
+      String(Math.abs(tx.amount)).includes(search)
+    )
     : txns;
 
   /* summary stats from current page */
   const userAcct = userData?.accountNumber;
-  const totalIn  = txns.filter(tx => isCredit(tx, userAcct) === true).reduce((s, tx) => s + Math.abs(tx.amount), 0);
+  const totalIn = txns.filter(tx => isCredit(tx, userAcct) === true).reduce((s, tx) => s + Math.abs(tx.amount), 0);
   const totalOut = txns.filter(tx => isCredit(tx, userAcct) === false).reduce((s, tx) => s + Math.abs(tx.amount), 0);
 
   return (
@@ -741,252 +789,252 @@ export default function Transactions() {
             {initialLoading ? (
               <PageLoader message="Loading transactions…" />
             ) : (
-            <div className="txh-page">
+              <div className="txh-page">
 
-              {/* Page header */}
-              <div className="txh-header">
-                <div>
-                  <h1 className="txh-title">Transaction History</h1>
-                  <p className="txh-sub">A complete record of all your account activity.</p>
-                </div>
-              </div>
-
-              {/* Summary strip */}
-              <div className="txh-summary-strip">
-                <div className="txh-summary-card">
-                  <div className="txh-summary-icon" style={{ background: "#f0fdf4" }}>💰</div>
+                {/* Page header */}
+                <div className="txh-header">
                   <div>
-                    <div className="txh-summary-label">Total In (this page)</div>
-                    <div className="txh-summary-value" style={{ color: "var(--green)" }}>{fmt(totalIn)}</div>
+                    <h1 className="txh-title">Transaction History</h1>
+                    <p className="txh-sub">A complete record of all your account activity.</p>
                   </div>
                 </div>
-                <div className="txh-summary-card">
-                  <div className="txh-summary-icon" style={{ background: "#fef2f2" }}>📤</div>
-                  <div>
-                    <div className="txh-summary-label">Total Out (this page)</div>
-                    <div className="txh-summary-value" style={{ color: "var(--red)" }}>{fmt(totalOut)}</div>
+
+                {/* Summary strip */}
+                <div className="txh-summary-strip">
+                  <div className="txh-summary-card">
+                    <div className="txh-summary-icon" style={{ background: "#f0fdf4" }}>💰</div>
+                    <div>
+                      <div className="txh-summary-label">Total In (this page)</div>
+                      <div className="txh-summary-value" style={{ color: "var(--green)" }}>{fmt(totalIn)}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="txh-summary-card">
-                  <div className="txh-summary-icon" style={{ background: "#eff6ff" }}>📋</div>
-                  <div>
-                    <div className="txh-summary-label">Total Transactions</div>
-                    <div className="txh-summary-value" style={{ color: "var(--navy)" }}>
-                      {loading ? "—" : (meta?.count !== undefined ? meta.count : txns.length).toLocaleString()}
+                  <div className="txh-summary-card">
+                    <div className="txh-summary-icon" style={{ background: "#fef2f2" }}>📤</div>
+                    <div>
+                      <div className="txh-summary-label">Total Out (this page)</div>
+                      <div className="txh-summary-value" style={{ color: "var(--red)" }}>{fmt(totalOut)}</div>
+                    </div>
+                  </div>
+                  <div className="txh-summary-card">
+                    <div className="txh-summary-icon" style={{ background: "#eff6ff" }}>📋</div>
+                    <div>
+                      <div className="txh-summary-label">Total Transactions</div>
+                      <div className="txh-summary-value" style={{ color: "var(--navy)" }}>
+                        {loading ? "—" : (meta?.count !== undefined ? meta.count : txns.length).toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Controls */}
-              <div className="txh-controls">
-                {/* Search */}
-                <div className="txh-search-wrap">
-                  <span className="txh-search-icon">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                  </span>
-                  <input
-                    className="txh-search"
-                    type="text"
-                    placeholder="Search transactions…"
-                    value={searchInput}
-                    onChange={e => setSearchInput(e.target.value)}
-                  />
-                </div>
-
-                {/* Filter tabs */}
-                <div className="txh-filter-tabs">
-                  {FILTERS.map(f => (
-                    <button
-                      key={f.value}
-                      className={`txh-tab${filter === f.value ? " active" : ""}`}
-                      onClick={() => setFilter(f.value)}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Sort */}
-                <select className="txh-sort" value={sort} onChange={e => setSort(e.target.value)}>
-                  <option value="desc">Newest first</option>
-                  <option value="asc">Oldest first</option>
-                </select>
-              </div>
-
-              {/* Error banner */}
-              {error && (
-                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: ".86rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  {error}
-                  <button onClick={fetchTxns} style={{ background: "#dc2626", color: "white", border: "none", padding: "5px 14px", borderRadius: 6, cursor: "pointer", fontSize: ".78rem", fontWeight: 700, fontFamily: "'DM Sans',sans-serif" }}>Retry</button>
-                </div>
-              )}
-
-              {/* Table card */}
-              <div className="txh-card">
-                <div className="txh-card-header">
-                  <span className="txh-card-title">
-                    {FILTERS.find(f => f.value === filter)?.label || "All"} Transactions
-                  </span>
-                  {!loading && (
-                    <span className="txh-count-badge">
-                      {search ? `${displayed.length} result${displayed.length !== 1 ? "s" : ""}` : `${meta.count || txns.length} total`}
+                {/* Controls */}
+                <div className="txh-controls">
+                  {/* Search */}
+                  <div className="txh-search-wrap">
+                    <span className="txh-search-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
                     </span>
-                  )}
-                </div>
+                    <input
+                      className="txh-search"
+                      type="text"
+                      placeholder="Search transactions…"
+                      value={searchInput}
+                      onChange={e => setSearchInput(e.target.value)}
+                    />
+                  </div>
 
-                {/* ── Desktop table ── */}
-                <div className="txh-table-wrap">
-                  {loading ? (
-                    <SkeletonRows n={8} />
-                  ) : displayed.length === 0 ? (
-                    <div className="txh-empty">
-                      <div className="txh-empty-icon">🗂️</div>
-                      <div className="txh-empty-title">No transactions found</div>
-                      <div className="txh-empty-sub">
-                        {search ? "Try a different search term." : "No transactions match the selected filter."}
-                      </div>
-                    </div>
-                  ) : (
-                    <table className="txh-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: 44 }}></th>
-                          <th>Transaction</th>
-                          <th style={{ display: 'none' }}>Date</th>
-                          <th style={{ textAlign: "right" }}>Amount</th>
-                          <th style={{ width: 24 }}></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {displayed.map(tx => {
-                          const m = getMeta(tx.type);
-                          const credit = isCredit(tx, userAcct);
-                          const isNeutral = credit === null;
-                          return (
-                            <tr key={tx._id} className="txh-row" onClick={() => setSelected(tx)}>
-                              <td>
-                                <TxRowIcon credit={credit} />
-                              </td>
-                              <td>
-                                <div className="txh-row-desc">{rowLabel(tx, userAcct)}</div>
-                                <div className="txh-row-sub">{fmtDate(tx.createdAt)} · {fmtTime(tx.createdAt)}</div>
-                              </td>
-                              <td style={{ display: "none" }}>
-                                <div className="txh-date-cell">
-                                  <span className="txh-date-main">{fmtDate(tx.createdAt)}</span>
-                                  <span className="txh-date-time">{fmtTime(tx.createdAt)}</span>
-                                </div>
-                              </td>
-                              <td style={{ textAlign: "right" }}>
-                                <span className={`txh-amount${isNeutral ? "" : credit ? " credit" : " debit"}`}
-                                  style={isNeutral ? { color: "#7c3aed" } : {}}>
-                                  {isNeutral ? "" : credit ? "+" : "-"}{fmt(Math.abs(tx.amount))}
-                                </span>
-                              </td>
-                              <td>
-                                <svg className="txh-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="9 18 15 12 9 6"/>
-                                </svg>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-
-                {/* ── Mobile list ── */}
-                <div className="txh-mobile-list">
-                  {loading ? (
-                    <SkeletonRows n={6} />
-                  ) : displayed.length === 0 ? (
-                    <div className="txh-empty">
-                      <div className="txh-empty-icon">🗂️</div>
-                      <div className="txh-empty-title">No transactions found</div>
-                      <div className="txh-empty-sub">
-                        {search ? "Try a different search term." : "No transactions match the selected filter."}
-                      </div>
-                    </div>
-                  ) : displayed.map(tx => {
-                    const m = getMeta(tx.type);
-                    const credit = isCredit(tx, userAcct);
-                    const isNeutral = credit === null;
-                    return (
-                      <div key={tx._id} className="txh-mobile-row" onClick={() => setSelected(tx)}>
-                        <TxRowIcon credit={credit} />
-                        <div className="txh-mobile-info">
-                          <div className="txh-mobile-desc">{rowLabel(tx, userAcct)}</div>
-                          <div className="txh-mobile-meta">
-                            <span className="txh-mobile-date">{fmtDate(tx.createdAt)} · {fmtTime(tx.createdAt)}</span>
-                          </div>
-                        </div>
-                        <div className="txh-mobile-right">
-                          <span className={`txh-amount${isNeutral ? "" : credit ? " credit" : " debit"}`}
-                            style={{ fontSize: ".9rem", ...(isNeutral ? { color: "#7c3aed" } : {}) }}>
-                            {isNeutral ? "" : credit ? "+" : "-"}{fmt(Math.abs(tx.amount))}
-                          </span>
-                          <svg className="txh-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="9 18 15 12 9 6"/>
-                          </svg>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* ── Pagination ── */}
-                {!loading && !search && meta.totalPages > 1 && (
-                  <div className="txh-pagination">
-                    <div className="txh-page-info">
-                      Showing <strong>{((meta.page - 1) * meta.limit) + 1}–{Math.min(meta.page * meta.limit, meta.count)}</strong> of <strong>{meta.count}</strong> transactions
-                    </div>
-                    <div className="txh-page-btns">
-                      {/* Prev */}
+                  {/* Filter tabs */}
+                  <div className="txh-filter-tabs">
+                    {FILTERS.map(f => (
                       <button
-                        className="txh-page-btn"
-                        onClick={() => setPage(p => p - 1)}
-                        disabled={page <= 1}
+                        key={f.value}
+                        className={`txh-tab${filter === f.value ? " active" : ""}`}
+                        onClick={() => setFilter(f.value)}
                       >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="15 18 9 12 15 6"/>
-                        </svg>
+                        {f.label}
                       </button>
+                    ))}
+                  </div>
 
-                      {/* Page numbers */}
-                      {pageNumbers(page, meta.totalPages).map((p, i) =>
-                        p === "..." ? (
-                          <span key={`dots-${i}`} className="txh-page-dots">…</span>
-                        ) : (
-                          <button
-                            key={p}
-                            className={`txh-page-btn${page === p ? " active" : ""}`}
-                            onClick={() => setPage(p)}
-                          >
-                            {p}
-                          </button>
-                        )
-                      )}
+                  {/* Sort */}
+                  <select className="txh-sort" value={sort} onChange={e => setSort(e.target.value)}>
+                    <option value="desc">Newest first</option>
+                    <option value="asc">Oldest first</option>
+                  </select>
+                </div>
 
-                      {/* Next */}
-                      <button
-                        className="txh-page-btn"
-                        onClick={() => setPage(p => p + 1)}
-                        disabled={page >= meta.totalPages}
-                      >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                      </button>
-                    </div>
+                {/* Error banner */}
+                {error && (
+                  <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#dc2626", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: ".86rem", fontWeight: 600, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {error}
+                    <button onClick={fetchTxns} style={{ background: "#dc2626", color: "white", border: "none", padding: "5px 14px", borderRadius: 6, cursor: "pointer", fontSize: ".78rem", fontWeight: 700, fontFamily: "'DM Sans',sans-serif" }}>Retry</button>
                   </div>
                 )}
-              </div>
 
-            </div>
+                {/* Table card */}
+                <div className="txh-card">
+                  <div className="txh-card-header">
+                    <span className="txh-card-title">
+                      {FILTERS.find(f => f.value === filter)?.label || "All"} Transactions
+                    </span>
+                    {!loading && (
+                      <span className="txh-count-badge">
+                        {search ? `${displayed.length} result${displayed.length !== 1 ? "s" : ""}` : `${meta.count || txns.length} total`}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* ── Desktop table ── */}
+                  <div className="txh-table-wrap">
+                    {loading ? (
+                      <SkeletonRows n={8} />
+                    ) : displayed.length === 0 ? (
+                      <div className="txh-empty">
+                        <div className="txh-empty-icon">🗂️</div>
+                        <div className="txh-empty-title">No transactions found</div>
+                        <div className="txh-empty-sub">
+                          {search ? "Try a different search term." : "No transactions match the selected filter."}
+                        </div>
+                      </div>
+                    ) : (
+                      <table className="txh-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: 44 }}></th>
+                            <th>Transaction</th>
+                            <th style={{ display: 'none' }}>Date</th>
+                            <th style={{ textAlign: "right" }}>Amount</th>
+                            <th style={{ width: 24 }}></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayed.map(tx => {
+                            const m = getMeta(tx.type);
+                            const credit = isCredit(tx, userAcct);
+                            const isNeutral = credit === null;
+                            return (
+                              <tr key={tx._id} className="txh-row" onClick={() => setSelected(tx)}>
+                                <td>
+                                  <TxRowIcon credit={credit} />
+                                </td>
+                                <td>
+                                  <div className="txh-row-desc">{rowLabel(tx, userAcct)}</div>
+                                  <div className="txh-row-sub">{fmtDate(tx.createdAt)} · {fmtTime(tx.createdAt)}</div>
+                                </td>
+                                <td style={{ display: "none" }}>
+                                  <div className="txh-date-cell">
+                                    <span className="txh-date-main">{fmtDate(tx.createdAt)}</span>
+                                    <span className="txh-date-time">{fmtTime(tx.createdAt)}</span>
+                                  </div>
+                                </td>
+                                <td style={{ textAlign: "right" }}>
+                                  <span className={`txh-amount${isNeutral ? "" : credit ? " credit" : " debit"}`}
+                                    style={isNeutral ? { color: "#7c3aed" } : {}}>
+                                    {isNeutral ? "" : credit ? "+" : "-"}{fmt(Math.abs(tx.amount))}
+                                  </span>
+                                </td>
+                                <td>
+                                  <svg className="txh-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                  </svg>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+
+                  {/* ── Mobile list ── */}
+                  <div className="txh-mobile-list">
+                    {loading ? (
+                      <SkeletonRows n={6} />
+                    ) : displayed.length === 0 ? (
+                      <div className="txh-empty">
+                        <div className="txh-empty-icon">🗂️</div>
+                        <div className="txh-empty-title">No transactions found</div>
+                        <div className="txh-empty-sub">
+                          {search ? "Try a different search term." : "No transactions match the selected filter."}
+                        </div>
+                      </div>
+                    ) : displayed.map(tx => {
+                      const m = getMeta(tx.type);
+                      const credit = isCredit(tx, userAcct);
+                      const isNeutral = credit === null;
+                      return (
+                        <div key={tx._id} className="txh-mobile-row" onClick={() => setSelected(tx)}>
+                          <TxRowIcon credit={credit} />
+                          <div className="txh-mobile-info">
+                            <div className="txh-mobile-desc">{rowLabel(tx, userAcct)}</div>
+                            <div className="txh-mobile-meta">
+                              <span className="txh-mobile-date">{fmtDate(tx.createdAt)} · {fmtTime(tx.createdAt)}</span>
+                            </div>
+                          </div>
+                          <div className="txh-mobile-right">
+                            <span className={`txh-amount${isNeutral ? "" : credit ? " credit" : " debit"}`}
+                              style={{ fontSize: ".9rem", ...(isNeutral ? { color: "#7c3aed" } : {}) }}>
+                              {isNeutral ? "" : credit ? "+" : "-"}{fmt(Math.abs(tx.amount))}
+                            </span>
+                            <svg className="txh-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* ── Pagination ── */}
+                  {!loading && !search && meta.totalPages > 1 && (
+                    <div className="txh-pagination">
+                      <div className="txh-page-info">
+                        Showing <strong>{((meta.page - 1) * meta.limit) + 1}–{Math.min(meta.page * meta.limit, meta.count)}</strong> of <strong>{meta.count}</strong> transactions
+                      </div>
+                      <div className="txh-page-btns">
+                        {/* Prev */}
+                        <button
+                          className="txh-page-btn"
+                          onClick={() => setPage(p => p - 1)}
+                          disabled={page <= 1}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
+                        </button>
+
+                        {/* Page numbers */}
+                        {pageNumbers(page, meta.totalPages).map((p, i) =>
+                          p === "..." ? (
+                            <span key={`dots-${i}`} className="txh-page-dots">…</span>
+                          ) : (
+                            <button
+                              key={p}
+                              className={`txh-page-btn${page === p ? " active" : ""}`}
+                              onClick={() => setPage(p)}
+                            >
+                              {p}
+                            </button>
+                          )
+                        )}
+
+                        {/* Next */}
+                        <button
+                          className="txh-page-btn"
+                          onClick={() => setPage(p => p + 1)}
+                          disabled={page >= meta.totalPages}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
             )}
           </div>
         </main>
